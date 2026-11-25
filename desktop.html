@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选择解锁方式</title>
+<style>
+/* ============================================================
+   Design Tokens
+   ============================================================ */
+:root{
+  /* Brand ramp — 单一品牌蓝梯度 */
+  --brand-700:#174BC0;
+  --brand-600:#1F5FE0;
+  --brand-500:#2B6CF6;
+  --brand-400:#5B90FA;
+  --brand-200:#C6D8FD;
+  --brand-100:#E6EEFE;
+  --brand-50:#F3F7FF;
+
+  /* Neutral ink */
+  --ink-900:#121A2E;
+  --ink-700:#2C3650;
+  --ink-500:#5C677F;
+  --ink-400:#8C95A8;
+  --ink-300:#B6BDCC;
+
+  /* Surface & line */
+  --surface:#FFFFFF;
+  --surface-2:#F7F9FD;
+  --line:#E8EDF6;
+  --line-soft:#F1F4FA;
+  --bg:#F2F5FB;
+
+  /* Semantic */
+  --danger-600:#D93B36;
+  --danger-500:#F0483E;
+  --danger-50:#FFF2F1;
+  --amber-600:#B7791F;
+  --amber-500:#F5A524;
+  --amber-50:#FFF8E9;
+
+  /* Radius */
+  --r-xl:22px;
+  --r-lg:16px;
+  --r-md:12px;
+  --r-sm:9px;
+  --r-pill:999px;
+
+  /* Elevation */
+  --sh-1:0 1px 2px rgba(18,26,46,.04), 0 2px 8px rgba(18,26,46,.04);
+  --sh-2:0 4px 16px rgba(18,26,46,.06);
+  --sh-3:0 12px 32px rgba(18,26,46,.12);
+  --sh-brand:0 6px 16px rgba(43,108,246,.24);
+
+  /* Motion */
+  --ease:cubic-bezier(.32,.72,.24,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+body{
+  font-family:-apple-system,"PingFang SC","Helvetica Neue","Microsoft YaHei",sans-serif;
+  background:
+    radial-gradient(900px 560px at 50% -12%, #E9F0FE 0%, rgba(233,240,254,0) 62%),
+    radial-gradient(680px 480px at 92% 112%, #E4F1EE 0%, rgba(228,241,238,0) 58%),
+    #EDF0F6;
+  color:var(--ink-900);
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:30px 16px;
+}
+.num{font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   iPhone Mockup
+   ============================================================ */
+.stage{display:flex;flex-direction:column;align-items:center;gap:16px}
+.device{
+  position:relative;
+  width:414px;height:868px;
+  padding:9px;
+  border-radius:58px;
+  background:linear-gradient(155deg,#33373F 0%,#15171C 38%,#22262E 72%,#3A3F49 100%);
+  box-shadow:
+    0 1px 2px rgba(18,26,46,.22),
+    0 30px 60px -16px rgba(18,26,46,.45),
+    inset 0 0 0 1px rgba(255,255,255,.10);
+}
+.device::before,.device::after{
+  content:"";position:absolute;width:3px;border-radius:2px;
+  background:linear-gradient(180deg,#4A505B,#2A2E36);
+}
+.device::before{left:-2px;top:168px;height:34px;box-shadow:0 52px 0 #3C424C}
+.device::after{right:-2px;top:196px;height:78px}
+.screen{
+  position:relative;
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  border-radius:50px;
+  overflow:hidden;
+  background:var(--bg);
+  isolation:isolate;
+}
+.statusbar{
+  position:absolute;top:0;left:0;right:0;height:50px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  font-size:13px;font-weight:650;color:var(--ink-900);
+  z-index:210;pointer-events:none;
+  letter-spacing:.2px;
+}
+.statusbar .sb-r{display:flex;align-items:center;gap:5px}
+.island{
+  position:absolute;top:9px;left:50%;transform:translateX(-50%);
+  width:112px;height:32px;border-radius:20px;
+  background:#08090C;z-index:220;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+}
+.toast{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%) scale(.97);
+  max-width:86%;
+  background:rgba(22,28,42,.93);
+  color:#fff;font-size:13px;font-weight:500;line-height:1.55;
+  padding:13px 18px;border-radius:12px;
+  text-align:center;
+  box-shadow:0 12px 28px rgba(12,18,32,.32);
+  opacity:0;pointer-events:none;z-index:300;
+  transition:opacity .24s var(--ease),transform .24s var(--ease);
+}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.home-bar{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:3px;
+  background:rgba(18,26,46,.26);z-index:205;pointer-events:none;
+}
+.stage-cap{
+  font-size:12.5px;color:#8A93A8;letter-spacing:.6px;
+}
+.stage-cap b{color:#2C3650;font-weight:600}
+
+@media (max-width:470px){
+  body{padding:10px 8px}
+  .device{width:100%;max-width:414px;height:calc(100vh - 56px);min-height:600px;border-radius:44px;padding:7px}
+  .screen{border-radius:38px}
+  .island{width:96px;height:28px}
+  .stage-cap{display:none}
+}
+
+/* ============================================================
+   Page shell
+   ============================================================ */
+.page{
+  position:relative;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  overflow-y:auto;
+  padding:56px 14px 14px;
+  scrollbar-width:none;
+  background:
+    radial-gradient(120% 60% at 50% 0%, #E9F0FF 0%, rgba(233,240,255,0) 62%),
+    linear-gradient(180deg,#F5F8FE 0%, #EEF2FA 100%);
+}
+.page::-webkit-scrollbar{display:none}
+
+.main-card{
+  background:var(--surface);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh-2);
+  padding:20px 16px 22px;
+}
+
+/* ---------- Header ---------- */
+.card-header{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;margin-bottom:18px;
+}
+.card-header h1{
+  font-size:18px;font-weight:650;color:var(--ink-900);
+  letter-spacing:.6px;
+}
+.help-link{
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  font-size:12px;font-weight:500;color:var(--ink-500);
+  background:var(--line-soft);
+  padding:5px 10px;border-radius:var(--r-pill);
+  cursor:pointer;transition:background .2s var(--ease),color .2s var(--ease);
+}
+.help-link:hover{background:var(--brand-100);color:var(--brand-600)}
+
+/* ---------- 推荐培训卡 ---------- */
+.recommend-box{
+  border:1px dashed var(--brand-200);
+  border-radius:var(--r-lg);
+  background:linear-gradient(180deg,var(--brand-50),#FFFFFF 78%);
+  padding:14px 14px 12px;
+  margin-bottom:18px;
+}
+.recommend-title{
+  display:flex;align-items:center;gap:6px;
+  font-size:14px;font-weight:650;color:var(--brand-600);
+  margin-bottom:6px;
+}
+.recommend-title::before{
+  content:"";width:4px;height:14px;border-radius:2px;
+  background:var(--brand-500);
+}
+.recommend-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:9px 0;
+  border-bottom:1px dashed var(--brand-100);
+}
+.recommend-row:last-of-type{border-bottom:none}
+.recommend-name{
+  display:flex;align-items:center;gap:5px;
+  flex:1;min-width:0;cursor:pointer;
+  font-size:13.5px;font-weight:500;color:var(--ink-900);
+  transition:color .2s var(--ease);
+}
+.recommend-name:hover{color:var(--brand-600)}
+.recommend-name .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chevron-blue{color:var(--brand-400);font-size:12px;flex:none}
+.price{
+  font-size:15px;font-weight:700;color:var(--ink-900);
+  flex:none;letter-spacing:.2px;
+}
+.buy-btn{
+  flex:none;border:none;cursor:pointer;
+  background:var(--brand-500);color:#fff;
+  font-family:inherit;font-size:12.5px;font-weight:600;
+  padding:6px 15px;border-radius:var(--r-pill);
+  box-shadow:0 3px 8px rgba(43,108,246,.22);
+  transition:transform .16s var(--ease),background .2s;
+}
+.buy-btn:active{transform:scale(.96);background:var(--brand-600)}
+.more-cards-tip{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  margin-top:8px;padding-top:10px;
+  border-top:1px dashed var(--brand-100);
+  font-size:12.5px;font-weight:600;color:var(--amber-600);
+  cursor:pointer;
+  transition:opacity .2s var(--ease);
+}
+.more-cards-tip:hover{opacity:.8}
+.more-cards-tip .excl{font-size:13px}
+
+/* ---------- 选项行 ---------- */
+.option{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  padding:15px 15px;
+  margin-bottom:10px;
+  box-shadow:var(--sh-1);
+  cursor:pointer;
+  transition:border-color .22s var(--ease),background .22s var(--ease),box-shadow .22s var(--ease);
+}
+.option:hover{border-color:var(--brand-200)}
+.option.active{
+  border-color:var(--brand-400);
+  background:var(--brand-50);
+  box-shadow:0 0 0 3px rgba(43,108,246,.07);
+}
+.option-left{display:flex;align-items:center;gap:12px;min-width:0}
+.option-label{font-size:15px;font-weight:500;color:var(--ink-900);letter-spacing:.2px}
+.radio{
+  width:20px;height:20px;flex:none;border-radius:50%;
+  border:1.5px solid #CBD4E4;background:#fff;
+  position:relative;
+  transition:border-color .2s var(--ease),background .2s var(--ease),box-shadow .2s var(--ease);
+}
+.radio.checked{
+  border-color:var(--brand-500);
+  box-shadow:inset 0 0 0 2.5px #fff, 0 0 0 1px var(--brand-500);
+  background:var(--brand-500);
+}
+.chevron-gray{
+  color:var(--ink-300);font-size:15px;line-height:1;
+  transition:transform .28s var(--ease),color .2s;
+}
+.option.active .chevron-gray{color:var(--brand-500)}
+
+/* ---------- 支付方式展开 ---------- */
+.option-wrap{
+  border-radius:var(--r-md);
+  border:1px solid transparent;
+  margin-bottom:10px;
+  transition:border-color .22s var(--ease);
+}
+.option-wrap .option{margin-bottom:0}
+.option-wrap.open{
+  border-color:var(--brand-400);
+  background:var(--brand-50);
+  box-shadow:0 0 0 3px rgba(43,108,246,.07);
+}
+.option-wrap.open .option{
+  background:transparent;border:none;box-shadow:none;
+  border-radius:var(--r-md) var(--r-md) 0 0;
+}
+.pay-sub{overflow:hidden;padding:2px 8px 8px}
+.sub-row{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 12px;
+  font-size:14.5px;color:var(--ink-700);
+  background:#fff;
+  border-radius:var(--r-sm);
+  margin-bottom:6px;
+  cursor:pointer;
+  transition:background .18s var(--ease),box-shadow .18s var(--ease);
+}
+.sub-row:last-child{margin-bottom:0}
+.sub-row:hover{background:var(--brand-50)}
+.sub-row .radio{width:18px;height:18px}
+
+/* ---------- 培训卡支付 容器 ---------- */
+.expand-area{
+  background:var(--surface);
+  border:1px solid var(--brand-400);
+  border-radius:var(--r-md);
+  box-shadow:0 0 0 3px rgba(43,108,246,.07), var(--sh-1);
+  padding:4px 12px 14px;
+  margin-bottom:10px;
+}
+.expand-header{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 2px;
+  cursor:pointer;
+}
+.expand-header.active .chevron-gray{color:var(--brand-500)}
+
+/* ---------- Tabs（分段控件） ---------- */
+.tabs2{
+  display:flex;gap:4px;
+  background:var(--line-soft);
+  border-radius:var(--r-pill);
+  padding:4px;
+  margin:2px 0 12px;
+}
+.tab2{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 0;
+  font-size:13px;font-weight:500;color:var(--ink-500);
+  border-radius:var(--r-pill);
+  cursor:pointer;
+  transition:background .22s var(--ease),color .22s var(--ease),box-shadow .22s var(--ease);
+}
+.tab2.on{
+  background:var(--surface);color:var(--brand-600);font-weight:650;
+  box-shadow:0 1px 3px rgba(18,26,46,.10);
+}
+.tab2 em{
+  font-style:normal;font-size:11px;font-weight:600;
+  min-width:18px;padding:1px 5px;border-radius:var(--r-pill);
+  background:#E9EDF6;color:var(--ink-500);text-align:center;
+}
+.tab2.on em{background:var(--brand-100);color:var(--brand-600)}
+
+.hidden{display:none!important}
+
+/* ---------- 提示条 ---------- */
+.hint2{
+  display:flex;align-items:center;gap:8px;
+  background:var(--brand-50);
+  border:1px solid var(--brand-100);
+  color:var(--ink-500);
+  font-size:12px;line-height:1.55;
+  padding:9px 11px;border-radius:var(--r-sm);
+  margin-bottom:12px;
+}
+.hint2 b{color:var(--brand-600);font-weight:650}
+.hint2 svg{flex:none}
+
+/* ---------- 培训卡 ---------- */
+.pcard{
+  background:#FFFFFF;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  box-shadow:var(--sh-1);
+  margin-bottom:12px;
+  transition:box-shadow .24s var(--ease),transform .24s var(--ease);
+}
+.pcard:hover{box-shadow:var(--sh-2)}
+.phead{
+  position:relative;overflow:hidden;
+  padding:15px 15px 14px;
+  color:#fff;
+  background:linear-gradient(118deg,var(--brand-700) 0%,var(--brand-500) 58%,#4E86F8 100%);
+}
+.phead::before,.phead::after{
+  content:"";position:absolute;border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);
+}
+.phead::before{width:150px;height:150px;right:-46px;top:-72px}
+.phead::after{width:96px;height:96px;right:26px;bottom:-58px}
+.phead h3{position:relative;font-size:15.5px;font-weight:640;letter-spacing:.2px}
+.pcount{
+  position:absolute;top:12px;right:12px;z-index:2;
+  font-size:11.5px;font-weight:650;color:#fff;
+  background:rgba(255,255,255,.22);
+  border:1px solid rgba(255,255,255,.28);
+  padding:3px 9px;border-radius:var(--r-pill);
+  letter-spacing:.2px;
+  backdrop-filter:blur(2px);
+}
+.pstate{
+  display:inline-block;vertical-align:2px;
+  font-size:10.5px;font-weight:700;color:#B45309;
+  background:#FFF3DC;border:1px solid #F3CB94;
+  padding:1px 6px;border-radius:5px;
+  margin-left:6px;letter-spacing:.3px;
+}
+.pstate.on{
+  color:#0F7B6C;background:#E4F6F2;border-color:#BFE8E0;
+}
+.pcard.pending .popt{pointer-events:none}
+.pcard.pending .popt .pobox{background:var(--surface-2)}
+.pcard.pending .pnum,.pcard.pending .pnum .unit{color:var(--ink-400)}
+.bind-inline{
+  width:100%;margin-top:11px;
+  border:none;border-radius:var(--r-md);
+  background:linear-gradient(135deg,#FF9330,#F4511E);
+  color:#fff;font-family:inherit;
+  font-size:14px;font-weight:650;
+  padding:11px 0;cursor:pointer;
+  box-shadow:0 4px 12px rgba(244,81,30,.24);
+  transition:transform .16s var(--ease),background .2s var(--ease);
+}
+.bind-inline:active{transform:scale(.99)}
+.pcard.pending .bind-inline.hidden{display:none}
+.phead p{
+  position:relative;font-size:12px;letter-spacing:.6px;
+  color:rgba(255,255,255,.82);margin-top:6px;
+}
+.phead.mute{
+  background:linear-gradient(118deg,#5A6478 0%,#7A8497 60%,#98A1B2 100%);
+}
+.pbody{padding:12px;background:#FFFFFF}
+.popt{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:9px;cursor:pointer;
+}
+.popt:last-of-type{margin-bottom:0}
+.pr{
+  width:18px;height:18px;flex:none;border-radius:50%;
+  border:1.5px solid #CBD4E4;background:#fff;
+  transition:border-color .2s var(--ease),background .2s var(--ease),box-shadow .2s var(--ease);
+}
+.popt.sel .pr{
+  border-color:var(--brand-500);background:var(--brand-500);
+  box-shadow:inset 0 0 0 2.5px #fff, 0 0 0 1px var(--brand-500);
+}
+.pobox{
+  flex:1;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:13px 14px;
+  background:var(--surface);
+  transition:border-color .22s var(--ease),background .22s var(--ease),box-shadow .22s var(--ease);
+}
+.popt:hover .pobox{border-color:var(--brand-200)}
+.popt.sel .pobox{
+  border-color:var(--brand-500);
+  background:var(--brand-50);
+  box-shadow:0 2px 10px rgba(43,108,246,.08);
+}
+.premain{font-size:12px;color:var(--ink-400);letter-spacing:.2px}
+.pnum{
+  font-size:23px;font-weight:700;color:var(--ink-900);
+  line-height:1.2;letter-spacing:-.4px;
+  font-variant-numeric:tabular-nums;
+}
+.pnum .unit{font-size:12.5px;font-weight:500;color:var(--ink-500);margin-left:4px;letter-spacing:0}
+.pchip,.cchip{
+  flex:none;font-size:13px;font-weight:500;
+  color:var(--ink-500);background:#F0F3F8;
+  padding:9px 18px;border-radius:var(--r-pill);
+  white-space:nowrap;line-height:1.2;
+  transition:background .2s,color .2s;
+}
+.popt.sel .pchip{background:var(--brand-500);color:#fff;font-weight:600}
+.popt.dim .pnum,.popt.dim .pnum .unit{color:var(--ink-300)}
+.popt.dim .pchip{color:var(--ink-300);background:var(--surface-2)}
+
+.pnote{
+  display:flex;align-items:flex-start;gap:8px;
+  border-top:1px solid var(--line-soft);
+  margin-top:11px;padding:11px 2px 2px;
+  font-size:12px;line-height:1.6;color:var(--ink-400);
+  cursor:pointer;
+}
+.pnote .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pnote.open .t{white-space:normal}
+.pnote .ar{flex:none;margin-top:1px;font-size:12px;transition:transform .26s var(--ease)}
+.pnote.open .ar{transform:rotate(180deg)}
+.pnote .more{display:none;width:100%;color:var(--ink-400);line-height:1.75}
+.pnote.open .more{display:block}
+
+/* ---------- 不可用卡专用 ---------- */
+.定向-btn{
+  display:inline-flex;align-items:center;gap:3px;
+  border:1px solid #FFD9D7;
+  background:var(--danger-50);
+  color:var(--danger-600);
+  font-family:inherit;font-size:12px;font-weight:600;
+  padding:6px 11px;border-radius:var(--r-pill);
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:background .18s var(--ease),transform .16s var(--ease);
+}
+.定向-btn:active{transform:scale(.97);background:#FFE6E4}
+.ubox{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1px solid var(--line);
+  background:var(--surface-2);
+  border-radius:14px;
+  padding:13px 14px;
+  margin-bottom:9px;
+}
+.ubox .lbl{font-size:12px;color:var(--ink-400)}
+.ubox .val{
+  font-size:23px;font-weight:700;color:var(--ink-900);
+  margin-top:3px;line-height:1.2;
+  font-variant-numeric:tabular-nums;
+}
+.ubox .val .unit{font-size:12px;font-weight:500;color:var(--ink-500);margin-left:2px}
+.utag{
+  display:flex;align-items:center;
+  border-left:3px solid var(--brand-500);
+  background:var(--brand-50);
+  color:var(--brand-600);
+  font-size:11.5px;font-weight:600;
+  padding:7px 10px;border-radius:0 var(--r-sm) var(--r-sm) 0;
+  line-height:1.5;margin-bottom:9px;
+  letter-spacing:.2px;
+}
+.udesc{
+  display:flex;align-items:center;gap:6px;
+  border-top:1px solid var(--line-soft);
+  margin-top:2px;padding:11px 2px 2px;
+  font-size:12px;color:var(--ink-400);
+  cursor:pointer;
+}
+.udesc .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.udesc.open .t{white-space:normal}
+.udesc .ar{flex:none;font-size:12px;transition:transform .26s var(--ease)}
+.udesc.open .ar{transform:rotate(180deg)}
+.udesc .more{display:none}
+.udesc.open .more{display:inline}
+.unote{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--amber-50);
+  border-top:1px solid #FBEFD5;
+  color:var(--amber-600);
+  font-size:12px;font-weight:600;
+  padding:9px 12px;
+}
+.unote::before{
+  content:"";width:5px;height:5px;border-radius:50%;
+  background:var(--amber-500);flex:none;
+}
+
+/* ---------- 不可用卡（平铺样式，无单选圈） ---------- */
+.ucard2{
+  background:#FCFDFF;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  box-shadow:var(--sh-1);
+  margin-bottom:12px;
+}
+.uc-head{padding:14px 14px 0}
+.uc-head h3{
+  font-size:15.5px;font-weight:600;color:var(--ink-700);
+  line-height:1.45;letter-spacing:.1px;
+}
+/* 不可用卡 浅灰渐变卡头（结构与可用卡一致，色彩降级） */
+.uc-head2{
+  position:relative;overflow:hidden;
+  padding:15px 15px 14px;
+  background:linear-gradient(118deg,#8D97AA 0%,#A3ACBD 56%,#BEC6D4 100%);
+}
+.uc-head2::before,.uc-head2::after{
+  content:"";position:absolute;border-radius:50%;
+  border:1px solid rgba(255,255,255,.20);
+}
+.uc-head2::before{width:150px;height:150px;right:-46px;top:-72px}
+.uc-head2::after{width:96px;height:96px;right:26px;bottom:-58px}
+.uc-head2 h3{
+  position:relative;
+  font-size:15.5px;font-weight:640;color:#fff;
+  line-height:1.45;letter-spacing:.2px;
+}
+.uc-meta2{
+  position:relative;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:7px;
+  font-size:12px;letter-spacing:.5px;
+  color:rgba(255,255,255,.86);
+}
+.uc-meta{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:11.5px;color:var(--ink-300);letter-spacing:.2px;
+  margin-top:7px;
+}
+.uc-body{padding:12px 14px 13px}
+.ucard2 .定向-btn{margin-bottom:10px}
+.ucard2 .ubox{
+  background:var(--surface-2);
+  border:1px solid var(--line-soft);
+  margin-bottom:9px;
+}
+.ucard2 .ubox .val{color:var(--ink-700)}
+.utag-bar{
+  display:block;
+  background:#93A3BE;color:#fff;
+  font-size:11.5px;font-weight:600;
+  padding:5px 9px;border-radius:4px;
+  line-height:1.5;letter-spacing:.3px;
+  margin-bottom:9px;
+}
+.ucard2 .udesc{border-top:1px solid var(--line-soft);margin-top:1px}
+.emptybox{
+  text-align:center;padding:44px 12px;
+  color:var(--ink-400);font-size:12.5px;line-height:1.8;
+  background:var(--surface-2);
+  border-radius:var(--r-lg);
+  margin-top:2px;
+}
+
+/* ---------- 底部确认 ---------- */
+.footer{
+  position:relative;flex:none;z-index:3;
+  margin:0;
+  padding:8px 14px 14px;
+  display:flex;flex-direction:column;gap:10px;
+  background:linear-gradient(180deg,rgba(242,245,251,0) 0%,#EEF2FA 22%);
+}
+.footer-row{
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;
+}
+
+/* ---------- 推荐培训卡气泡（暖橙促销色） ---------- */
+.bubble{
+  position:relative;
+  background:linear-gradient(180deg,#FFF9F1 0%,#FFF0DC 100%);
+  border:1.5px dashed #F0A64A;
+  border-radius:16px;
+  padding:13px 13px 6px;
+  box-shadow:
+    0 10px 26px rgba(233,140,36,.24),
+    0 0 0 4px rgba(245,166,60,.10);
+  animation:bubbleIn .28s var(--ease);
+  overflow:hidden;
+}
+.bubble::before{
+  content:"";position:absolute;left:-30px;top:-40px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,166,60,.28),rgba(245,166,60,0) 70%);
+  pointer-events:none;
+}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bubble .recommend-title{
+  position:relative;
+  font-size:14px;font-weight:700;color:#B45309;
+  margin-bottom:4px;padding-right:64px;
+  letter-spacing:.2px;
+}
+.bubble .recommend-title::before{
+  width:4px;height:15px;
+  background:linear-gradient(180deg,#FF9F1C,#F4511E);
+}
+.bubble .recommend-row{
+  padding:9px 0;
+  border-bottom:1px dashed #FBE3C2;
+}
+.bubble .recommend-name{font-size:13px;color:#3A2A16}
+.bubble .recommend-name:hover{color:#C2410C}
+.bubble .recommend-name .txt{font-weight:500}
+.bubble .chevron-blue{color:#E08A2E}
+.bubble .price{font-size:14.5px;font-weight:750;color:#DC3E0B;margin:0 2px}
+.bubble .buy-btn{
+  font-size:12px;padding:6px 15px;
+  background:linear-gradient(135deg,#FF9330,#F4511E);
+  box-shadow:0 4px 12px rgba(244,81,30,.32);
+}
+.bubble .buy-btn:active{background:linear-gradient(135deg,#F98422,#DC3E0B)}
+.bubble .more-cards-tip{
+  margin-top:5px;padding-top:10px;
+  border-top:1px dashed #FBE3C2;
+  font-size:12.5px;font-weight:700;color:#C2410C;
+}
+.bb-collapse{
+  position:absolute;top:9px;right:9px;z-index:2;
+  display:flex;align-items:center;gap:2px;
+  border:1px solid #F3CB94;
+  background:#fff;color:#B45309;
+  font-family:inherit;font-size:11px;font-weight:650;
+  padding:4px 9px;border-radius:var(--r-pill);
+  cursor:pointer;line-height:1.2;
+  box-shadow:0 2px 6px rgba(233,140,36,.14);
+  transition:background .18s var(--ease),transform .16s var(--ease);
+}
+.bb-collapse:hover{background:#FFF6E8}
+.bb-collapse:active{transform:scale(.96)}
+.bb-mini{
+  border:1px dashed #F0A64A;
+  background:linear-gradient(135deg,#FFF6E8,#FFE9CE);
+  color:#B45309;
+  font-family:inherit;font-size:12px;font-weight:700;
+  padding:8px 14px;border-radius:var(--r-pill);
+  cursor:pointer;
+  box-shadow:0 6px 16px rgba(233,140,36,.26);
+  animation:bubbleIn .24s var(--ease);
+  transition:transform .16s var(--ease);
+}
+.bb-mini:active{transform:scale(.96)}
+.confirm-btn{
+  pointer-events:auto;
+  background:var(--brand-500);color:#fff;
+  font-family:inherit;font-size:15.5px;font-weight:600;
+  border:none;border-radius:var(--r-pill);
+  padding:13px 40px;letter-spacing:1.4px;
+  box-shadow:var(--sh-brand);
+  cursor:pointer;
+  transition:transform .16s var(--ease),background .2s var(--ease);
+}
+.confirm-btn:active{transform:scale(.97);background:var(--brand-600)}
+
+/* ============================================================
+   Sub pages
+   ============================================================ */
+.subpage{
+  display:none;position:absolute;inset:0;
+  background:var(--bg);
+  z-index:80;overflow:hidden;
+  animation:slideIn .3s var(--ease);
+}
+.subpage.show{display:block}
+/* 子页层级阶梯：后进页必须压在先前页之上（与 DOM 顺序无关） */
+#buyPage{z-index:80}
+#bindPage{z-index:85}
+#orderPage{z-index:90}
+#codePage{z-index:95}
+@keyframes slideIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.sp-wrap{
+  width:414px;max-width:100%;margin:0 auto;
+  height:100%;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#F7F9FD 0%,#F1F4FA 100%);
+}
+.sp-head{
+  display:flex;align-items:center;gap:10px;
+  padding:52px 16px 14px;
+  background:var(--surface);
+  border-bottom:1px solid var(--line-soft);
+}
+.sp-back{
+  width:30px;height:30px;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  border:none;background:transparent;
+  font-size:20px;color:var(--ink-900);line-height:1;
+  cursor:pointer;border-radius:50%;
+  transition:background .18s;
+}
+.sp-back:hover{background:var(--line-soft)}
+.sp-head h2{font-size:17px;font-weight:650;color:var(--ink-900);letter-spacing:.4px}
+
+.sp-tabs{
+  display:flex;
+  background:var(--surface);
+  border-bottom:1px solid var(--line-soft);
+}
+.sp-tab{
+  flex:1;text-align:center;
+  padding:12px 0 11px;
+  font-size:14px;font-weight:500;color:var(--ink-400);
+  position:relative;cursor:pointer;
+  transition:color .2s var(--ease);
+}
+.sp-tab.on{color:var(--ink-900);font-weight:650}
+.sp-tab.on::after{
+  content:"";position:absolute;bottom:0;left:50%;
+  transform:translateX(-50%);
+  width:26px;height:3px;border-radius:3px 3px 0 0;
+  background:var(--brand-500);
+}
+.sp-body{flex:1;overflow-y:auto;padding:14px 14px 96px}
+.sp-body::-webkit-scrollbar{display:none}
+
+.grp-title{
+  display:flex;align-items:center;gap:7px;
+  font-size:14px;font-weight:650;color:var(--ink-900);
+  margin:2px 2px 10px;
+}
+.grp-title::before{
+  content:"";width:3px;height:14px;border-radius:2px;
+  background:var(--brand-500);
+}
+.bc-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  box-shadow:var(--sh-1);
+}
+.bc-head{
+  position:relative;overflow:hidden;
+  padding:15px;
+  color:#fff;
+  background:linear-gradient(118deg,var(--brand-700) 0%,var(--brand-500) 58%,#4E86F8 100%);
+}
+.bc-head::before{
+  content:"";position:absolute;
+  width:130px;height:130px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.16);
+  right:-40px;top:-64px;
+}
+.bc-head h3{position:relative;font-size:15.5px;font-weight:640;letter-spacing:.2px}
+.bc-head p{position:relative;font-size:12px;color:rgba(255,255,255,.82);margin-top:6px;letter-spacing:.6px}
+.bc-body{padding:12px}
+.bc-box{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:13px 14px;margin-bottom:9px;
+  background:var(--surface-2);
+}
+.bc-box .k{font-size:12px;color:var(--ink-400)}
+.bc-box .v{
+  font-size:22px;font-weight:700;color:var(--ink-900);line-height:1.2;
+  font-variant-numeric:tabular-nums;
+}
+.bc-box .v .unit{font-size:12px;font-weight:500;color:var(--ink-500);margin-left:3px}
+.bc-box .tag{
+  flex:none;font-size:13px;font-weight:500;
+  color:var(--ink-500);background:#F0F3F8;
+  border:none;
+  padding:9px 18px;border-radius:var(--r-pill);
+  line-height:1.2;
+}
+.bc-bind{
+  width:100%;border:1px solid var(--brand-100);
+  border-radius:var(--r-md);
+  background:var(--brand-50);color:var(--brand-600);
+  font-family:inherit;font-size:14.5px;font-weight:650;
+  padding:11px 0;cursor:pointer;
+  transition:background .18s var(--ease),transform .16s var(--ease);
+}
+.bc-bind:active{transform:scale(.99);background:var(--brand-100)}
+.bc-bind.done{background:var(--line-soft);border-color:var(--line);color:var(--ink-300)}
+.bc-note{
+  display:flex;align-items:center;gap:6px;
+  border-top:1px solid var(--line-soft);
+  margin-top:12px;padding:11px 2px 2px;
+  font-size:12px;color:var(--ink-400);cursor:pointer;
+}
+.bc-note .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bc-note.open .t{white-space:normal}
+.bc-note .ar{flex:none;font-size:12px;transition:transform .26s var(--ease)}
+.bc-note.open .ar{transform:rotate(180deg)}
+.sp-empty{text-align:center;color:var(--ink-300);font-size:12.5px;padding:64px 10px}
+.sp-foot{
+  position:sticky;bottom:0;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(8px);
+  border-top:1px solid var(--line-soft);
+  padding:12px 14px 20px;
+  display:flex;gap:10px;
+}
+.sp-foot button{
+  flex:1;border-radius:var(--r-pill);
+  font-family:inherit;font-size:15px;font-weight:650;
+  padding:13px 0;cursor:pointer;
+  transition:transform .16s var(--ease),background .2s var(--ease);
+}
+.sp-foot button:active{transform:scale(.98)}
+.btn-ghost{background:#fff;border:1px solid var(--brand-200);color:var(--brand-600)}
+.btn-ghost:hover{background:var(--brand-50)}
+.btn-solid{background:var(--brand-500);border:1px solid var(--brand-500);color:#fff;box-shadow:0 4px 12px rgba(43,108,246,.2)}
+.btn-solid:hover{background:var(--brand-600)}
+
+/* ---------- 培训卡购买 页 ---------- */
+.buy-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-1);
+  overflow:hidden;
+}
+.buy-row{padding:14px 14px 13px;border-bottom:1px solid var(--line-soft)}
+.buy-row:last-child{border-bottom:none}
+.buy-row .bn{font-size:14.5px;font-weight:600;color:var(--ink-900);line-height:1.45}
+.buy-row .b2{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:9px;
+}
+.buy-row .bd{
+  display:flex;align-items:center;gap:5px;
+  font-size:12.5px;color:var(--ink-400);cursor:pointer;
+  transition:color .2s var(--ease);
+}
+.buy-row .bd:hover{color:var(--brand-600)}
+.buy-row .br{display:flex;align-items:center;gap:12px}
+.buy-row .bp{
+  font-size:14px;font-weight:700;color:var(--danger-600);
+  font-variant-numeric:tabular-nums;
+}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{
+  width:24px;height:24px;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid #D8DEEA;border-radius:50%;
+  background:#fff;color:var(--ink-500);
+  font-family:inherit;font-size:15px;line-height:1;
+  cursor:pointer;padding:0;
+  transition:all .18s var(--ease);
+}
+.stepper button:hover{border-color:var(--brand-400);color:var(--brand-600);background:var(--brand-50)}
+.stepper button:disabled{border-color:var(--line);color:var(--ink-300);background:#fff;cursor:not-allowed}
+.stepper .q{
+  min-width:18px;text-align:center;
+  font-size:14px;font-weight:600;color:var(--ink-900);
+  font-variant-numeric:tabular-nums;
+}
+.sp-foot.one{display:block}
+.sp-foot.one button{width:100%}
+.sp-foot .buy-now{
+  background:#C9D6EE;cursor:not-allowed;box-shadow:none;
+  border:none;color:#fff;
+  border-radius:var(--r-pill);
+  font-family:inherit;font-size:16px;font-weight:650;
+  padding:14px 0;
+  transition:background .22s var(--ease),box-shadow .22s var(--ease),transform .16s var(--ease);
+}
+.sp-foot .buy-now.ready{
+  background:var(--brand-500);cursor:pointer;
+  box-shadow:var(--sh-brand);
+}
+.sp-foot .buy-now.ready:active{transform:scale(.99);background:var(--brand-600)}
+
+/* ---------- 填写订单 页 ---------- */
+.order-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-1);
+  padding:4px 14px;
+  margin-bottom:12px;
+}
+.o-prod{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:15px 0;
+}
+.o-prod .nm{font-size:14.5px;font-weight:600;color:var(--ink-900);line-height:1.5}
+.o-prod .rt{flex:none;display:flex;align-items:baseline;gap:6px}
+.o-amt{font-size:15px;font-weight:700;color:var(--danger-600);font-variant-numeric:tabular-nums}
+.o-qty{font-size:12px;color:var(--ink-300)}
+.o-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 0;
+  border-top:1px solid var(--line-soft);
+  font-size:14px;
+}
+.o-row .k{color:var(--ink-700);flex:none}
+.o-row .v{display:flex;align-items:center;gap:6px;color:var(--ink-400);font-size:13.5px;text-align:right}
+.o-row .v.money{color:var(--ink-900);font-weight:600;font-variant-numeric:tabular-nums}
+.o-row .v.money.red{color:var(--danger-600);font-size:16px;font-weight:700}
+.o-row .ar{color:var(--ink-300);font-size:13px}
+.inv-opts{display:flex;align-items:center;gap:18px}
+.inv-opt{
+  display:flex;align-items:center;gap:6px;
+  font-size:13.5px;color:var(--ink-500);cursor:pointer;
+  transition:color .2s var(--ease);
+}
+.inv-opt .dot{
+  width:18px;height:18px;flex:none;border-radius:50%;
+  border:1.5px solid #CBD4E4;background:#fff;position:relative;
+  transition:all .2s var(--ease);
+}
+.inv-opt.on{color:var(--ink-900);font-weight:600}
+.inv-opt.on .dot{
+  border-color:var(--brand-500);background:var(--brand-500);
+  box-shadow:none;
+}
+.inv-opt.on .dot::after{
+  content:"";position:absolute;left:5.5px;top:1.5px;
+  width:4px;height:8px;
+  border:solid #fff;border-width:0 1.8px 1.8px 0;
+  transform:rotate(42deg);
+}
+.pay-bar{
+  position:sticky;bottom:0;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:12px 16px 20px;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(8px);
+  border-top:1px solid var(--line-soft);
+}
+.pay-bar .sum{display:flex;align-items:baseline;gap:5px}
+.pay-bar .sum .lb{font-size:12.5px;color:var(--ink-500)}
+.pay-bar .sum .num{
+  font-size:21px;font-weight:750;color:var(--danger-600);letter-spacing:-.3px;
+  font-variant-numeric:tabular-nums;
+}
+.pay-bar .submit{
+  flex:none;border:none;border-radius:var(--r-pill);
+  background:linear-gradient(135deg,#FF7A55,#EF4136);color:#fff;
+  font-family:inherit;font-size:15px;font-weight:650;
+  padding:12px 30px;cursor:pointer;
+  box-shadow:0 6px 16px rgba(239,65,54,.28);
+  transition:transform .16s var(--ease),background .2s var(--ease);
+}
+.pay-bar .submit:active{transform:scale(.97);background:linear-gradient(135deg,#F26A45,#D8362C)}
+
+/* ---------- 购买协议 弹窗 ---------- */
+.agree-dialog{
+  width:100%;max-width:344px;
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-3);
+  padding:22px 20px 20px;
+  animation:popIn .26s var(--ease);
+}
+.agree-dialog h3{
+  text-align:center;font-size:16px;font-weight:700;color:var(--ink-900);
+  margin-bottom:14px;letter-spacing:.4px;
+}
+.agree-body{
+  max-height:238px;overflow-y:auto;
+  font-size:12.5px;line-height:1.95;color:var(--ink-700);
+  text-align:justify;padding-right:4px;
+}
+.agree-body p{margin-bottom:9px}
+.agree-body p:last-child{margin-bottom:0}
+.agree-body::-webkit-scrollbar{width:3px}
+.agree-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.agree-chk{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:16px 0 14px;
+  font-size:13px;color:var(--ink-500);cursor:pointer;
+  transition:color .2s;
+}
+.agree-chk .box{
+  width:17px;height:17px;flex:none;border-radius:50%;
+  border:1.5px solid #CBD4E4;background:#fff;
+  transition:all .2s var(--ease);
+}
+.agree-chk.on{color:var(--ink-900);font-weight:500}
+.agree-chk.on .box{
+  border-color:var(--brand-500);background:var(--brand-500);
+  box-shadow:inset 0 0 0 2.5px #fff, 0 0 0 1px var(--brand-500);
+}
+.agree-ok{
+  display:block;width:100%;
+  border:none;border-radius:var(--r-pill);
+  background:#C9D6EE;color:#fff;
+  font-family:inherit;font-size:15px;font-weight:650;
+  padding:12px 0;cursor:not-allowed;
+  transition:background .22s var(--ease),box-shadow .22s var(--ease),transform .16s var(--ease);
+}
+.agree-ok.ready{background:var(--brand-500);cursor:pointer;box-shadow:0 4px 14px rgba(43,108,246,.22)}
+.agree-ok.ready:active{transform:scale(.98);background:var(--brand-600)}
+
+/* ---------- 卡密绑定 表单页 ---------- */
+.form-wrap{flex:1;overflow-y:auto;padding:14px}
+.form-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-1);
+  overflow:hidden;
+}
+.form-row{
+  display:flex;align-items:center;gap:12px;
+  padding:17px 15px;
+  border-bottom:1px solid var(--line-soft);
+}
+.form-row:last-child{border-bottom:none}
+.form-row .fl{width:58px;flex:none;font-size:14.5px;font-weight:500;color:var(--ink-700)}
+.form-row input{
+  flex:1;min-width:0;border:none;outline:none;background:transparent;
+  font-family:inherit;font-size:14.5px;color:var(--ink-900);
+}
+.form-row input::placeholder{color:var(--ink-300)}
+.form-foot{
+  position:sticky;bottom:0;
+  background:linear-gradient(180deg,rgba(241,244,250,0),#F1F4FA 40%);
+  padding:12px 16px 24px;
+}
+.form-foot button{
+  width:100%;border:none;border-radius:var(--r-pill);
+  background:#C9D6EE;color:#fff;
+  font-family:inherit;font-size:16px;font-weight:650;
+  padding:14px 0;cursor:not-allowed;
+  transition:background .22s var(--ease),box-shadow .22s var(--ease),transform .16s var(--ease);
+}
+.form-foot button.ready{
+  background:var(--brand-500);cursor:pointer;
+  box-shadow:var(--sh-brand);
+}
+.form-foot button.ready:active{transform:scale(.99)}
+
+/* ============================================================
+   Dialogs
+   ============================================================ */
+.mask{
+  display:none;position:absolute;inset:0;
+  background:rgba(12,18,32,.46);
+  backdrop-filter:blur(3px);
+  z-index:99;
+  align-items:center;justify-content:center;
+  padding:0 24px;
+  animation:fadeIn .2s var(--ease);
+}
+.mask.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.dialog,.card-dlg{
+  width:100%;max-width:360px;
+  background:var(--surface);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh-3);
+  animation:popIn .26s var(--ease);
+}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.dialog{padding:22px 20px 20px}
+.dialog h3{
+  text-align:center;font-size:16.5px;font-weight:700;color:var(--ink-900);
+  margin-bottom:16px;letter-spacing:.4px;
+}
+.dialog .course{padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.dialog .course:last-of-type{border-bottom:none}
+.dialog .course b{
+  display:block;font-size:13.5px;font-weight:600;color:var(--ink-900);
+  line-height:1.5;
+}
+.dialog .course span{display:block;font-size:11.5px;color:var(--ink-400);margin-top:4px}
+.ok-btn{
+  display:block;width:100%;margin-top:16px;
+  border:none;border-radius:var(--r-pill);
+  background:var(--brand-500);color:#fff;
+  font-family:inherit;font-size:15px;font-weight:600;
+  padding:12px 0;cursor:pointer;
+  box-shadow:0 4px 12px rgba(43,108,246,.22);
+  transition:background .2s,transform .16s var(--ease);
+}
+.ok-btn:active{transform:scale(.98);background:var(--brand-600)}
+
+.card-dlg{padding:22px 20px 12px;position:relative}
+.card-dlg h3{font-size:16.5px;font-weight:700;color:var(--ink-900);margin-bottom:6px}
+.card-dlg .close-x{
+  position:absolute;top:18px;right:18px;
+  width:28px;height:28px;border:none;border-radius:50%;
+  background:var(--line-soft);color:var(--ink-500);
+  font-size:13px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .18s;
+}
+.card-dlg .close-x:hover{background:#E6EAF3}
+.cd-row{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:20px;padding:14px 0;
+  border-bottom:1px solid var(--line-soft);
+}
+.cd-row:last-child{border-bottom:none}
+.cd-row .lbl{flex:none;font-size:13.5px;color:var(--ink-400)}
+.cd-row .val{
+  font-size:13.5px;font-weight:500;color:var(--ink-900);
+  text-align:right;line-height:1.7;
+}
+.cd-row .val.gray{font-weight:400;color:var(--ink-400);line-height:1.75}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="device">
+    <div class="screen">
+      <!-- 状态栏 -->
+      <div class="statusbar">
+        <span>17:56</span>
+        <span class="sb-r">
+          <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.2px">5G</span>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="currentColor" stroke-opacity=".38"/><rect x="2" y="2" width="15" height="8" rx="1.8" fill="#2FA84F"/><path d="M22 4.2v3.6c1-.3 1.6-1 1.6-1.8s-.6-1.5-1.6-1.8z" fill="currentColor" fill-opacity=".45"/></svg>
+        </span>
+      </div>
+      <div class="island"></div>
+
+<div class="page">
+  <div class="main-card">
+    <!-- 标题 -->
+    <div class="card-header">
+      <h1>选择解锁方式</h1>
+      <span class="help-link">说明?</span>
+    </div>
+
+    <!-- 选项1：支付39元解锁课程 -->
+    <div class="option-wrap" id="payWrap">
+      <div class="option" id="payHead">
+        <div class="option-left">
+          <span class="radio" id="payRadio"></span>
+          <span class="option-label">支付39元解锁课程</span>
+        </div>
+        <span class="chevron-gray" id="payArr">›</span>
+      </div>
+      <div class="pay-sub hidden" id="paySub"></div>
+    </div>
+
+    <!-- 选项2：培训卡支付（可折叠） -->
+    <div class="expand-area" id="cardArea">
+      <div class="expand-header active" id="cardHead">
+        <span class="radio checked" id="cardRadio"></span>
+        <span class="option-label">使用已绑定培训卡</span>
+        <span style="flex:1"></span>
+        <span class="chevron-gray" id="cardArr">⌄</span>
+      </div>
+
+      <div id="cardBody">
+        <!-- Tabs -->
+        <div class="tabs2">
+          <div class="tab2 on" data-tab="usable">可用培训卡 <em>5</em></div>
+          <div class="tab2" data-tab="unusable">不可用培训卡 <em>5</em></div>
+        </div>
+
+        <!-- 可用培训卡 -->
+        <div id="tabUsable">
+          <div class="hint2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2B6CF6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <span>系统已按<b>最优扣减顺序</b>，展示您已绑定的培训卡</span>
+          </div>
+
+          <!-- 卡1 -->
+          <div class="pcard">
+            <div class="phead">
+              <h3>2026年广东继教-10分</h3>
+              <p>卡号：9111265507139</p>
+            </div>
+            <div class="pbody">
+              <div class="popt">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">4<span class="unit">学分</span></div></div>
+                  <span class="pchip">国家级</span>
+                </div>
+              </div>
+              <div class="popt dim">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">18<span class="unit">学时</span></div></div>
+                  <span class="pchip">选修课</span>
+                </div>
+              </div>
+              <div class="pnote">
+                <span class="t">1. 学习完成后可申请国家级项目10分（不含全员专项中项目）…</span>
+                <span class="ar">⌄</span>
+                <span class="more">说明：学习完成后可申请国家级项目 10 分（不含全员专项中项目）；选修课学时按实际学习时长累计，两种额度不可混合扣减。</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 卡2 -->
+          <div class="pcard">
+            <div class="phead">
+              <h3>2026年广东继教-5分</h3>
+              <p>卡号：9111265508264</p>
+            </div>
+            <div class="pbody">
+              <div class="popt">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">2<span class="unit">学分</span></div></div>
+                  <span class="pchip">国家级</span>
+                </div>
+              </div>
+              <div class="popt dim">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">10<span class="unit">学时</span></div></div>
+                  <span class="pchip">选修课</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 卡3 -->
+          <div class="pcard">
+            <div class="phead">
+              <h3>2025年国家级项目学分卡</h3>
+              <p>卡号：9111250311887</p>
+            </div>
+            <div class="pbody">
+              <div class="popt">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">6<span class="unit">学分</span></div></div>
+                  <span class="pchip">国家级</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 卡4 -->
+          <div class="pcard">
+            <div class="phead">
+              <h3>华医网通用学时卡</h3>
+              <p>卡号：9111270409621</p>
+            </div>
+            <div class="pbody">
+              <div class="popt">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">20<span class="unit">学时</span></div></div>
+                  <span class="pchip">选修课</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 待绑定学习卡 -->
+          <div class="pcard pending" id="pendingCard">
+            <div class="phead">
+              <span class="pcount" id="pendingCount">数量：2</span>
+              <h3>2026年广东继教-10分<span class="pstate">待绑定</span></h3>
+              <p>卡号：911126000000123</p>
+            </div>
+            <div class="pbody">
+              <div class="popt">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">10<span class="unit">学分</span></div></div>
+                  <span class="pchip">国家级</span>
+                </div>
+              </div>
+              <div class="popt">
+                <span class="pr"></span>
+                <div class="pobox">
+                  <div><div class="premain">剩余</div><div class="pnum num">18<span class="unit">学时</span></div></div>
+                  <span class="pchip">选修课</span>
+                </div>
+              </div>
+              <button class="bind-inline" id="pendingBind">绑定该卡后可解锁扣减</button>
+              <div class="pnote">
+                <span class="t">1. 该卡尚未绑定到当前账号，绑定后即可参与本次扣减…</span>
+                <span class="ar">⌄</span>
+                <span class="more">说明：绑定后卡片归入当前账号，有效期与可用额度以卡面公示为准；未绑定的卡片无法参与本次课程扣减。</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 不可用培训卡：5 种不可用原因（平铺样式，无单选圈） -->
+        <div id="tabUnusable" class="hidden">
+
+          <div class="ucard2">
+            <div class="uc-head2">
+              <h3>我是有些蹩脚的学分卡的名称</h3>
+              <div class="uc-meta2"><span>卡号：112123123123</span><span>有效期至2026-01-08</span></div>
+            </div>
+            <div class="uc-body">
+              <button class="定向-btn">查看定向课程 ›</button>
+              <div class="ubox"><div><div class="lbl">可用课程</div><div class="val num">8</div></div><span class="cchip">国家级</span></div>
+              <div class="ubox"><div><div class="lbl">可用时长</div><div class="val num">45<span class="unit">小时</span></div></div><span class="cchip">国家级</span></div>
+              <div class="udesc">
+                <span class="t">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述<span class="more">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述（展开后完整内容）</span></span>
+                <span class="ar">⌄</span>
+              </div>
+            </div>
+            <div class="unote">培训卡过期</div>
+          </div>
+
+          <div class="ucard2">
+            <div class="uc-head2">
+              <h3>我是课程卡的卡名称</h3>
+              <div class="uc-meta2"><span>卡号：112123123123</span><span>有效期至2026-01-08</span></div>
+            </div>
+            <div class="uc-body">
+              <button class="定向-btn">查看定向课程 ›</button>
+              <div class="ubox"><div><div class="lbl">可用课程</div><div class="val num">1</div></div><span class="cchip">国家级</span></div>
+              <div class="udesc">
+                <span class="t">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述<span class="more">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述（展开后完整内容）</span></span>
+                <span class="ar">⌄</span>
+              </div>
+            </div>
+            <div class="unote">当前地区不可使用</div>
+          </div>
+
+          <div class="ucard2">
+            <div class="uc-head2">
+              <h3>我是学分卡</h3>
+              <div class="uc-meta2"><span>卡号：1121231231205</span><span>有效期至2026-01-08</span></div>
+            </div>
+            <div class="uc-body">
+              <div class="ubox"><div><div class="lbl">可用时长</div><div class="val num">45<span class="unit">小时</span></div></div><span class="cchip">国家级</span></div>
+              <div class="udesc">
+                <span class="t">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述<span class="more">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述（展开后完整内容）</span></span>
+                <span class="ar">⌄</span>
+              </div>
+            </div>
+            <div class="unote">培训卡不包含本次待申请课程</div>
+          </div>
+
+          <div class="ucard2">
+            <div class="uc-head2">
+              <h3>我是学分卡</h3>
+              <div class="uc-meta2"><span>卡号：1121231231205</span><span>有效期至2026-01-08</span></div>
+            </div>
+            <div class="uc-body">
+              <div class="ubox"><div><div class="lbl">可用时长</div><div class="val num">45<span class="unit">小时</span></div></div><span class="cchip">国家级</span></div>
+              <div class="udesc">
+                <span class="t">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述<span class="more">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述（展开后完整内容）</span></span>
+                <span class="ar">⌄</span>
+              </div>
+            </div>
+            <div class="unote">培训卡余可使用时长与待扣减课程时长不符</div>
+          </div>
+
+          <div class="ucard2">
+            <div class="uc-head2">
+              <h3>我是学分卡</h3>
+              <div class="uc-meta2"><span>卡号：1121231231205</span><span>有效期至2026-01-08</span></div>
+            </div>
+            <div class="uc-body">
+              <div class="ubox"><div><div class="lbl">可用时长</div><div class="val num">45<span class="unit">小时</span></div></div><span class="cchip">国家级</span></div>
+              <div class="udesc">
+                <span class="t">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述<span class="more">卡描述卡描述卡描述卡描述卡描述卡描述卡描述卡描述（展开后完整内容）</span></span>
+                <span class="ar">⌄</span>
+              </div>
+            </div>
+            <div class="unote">此卡已用完</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选项3：绑卡 -->
+    <div class="option" id="bindCardOpt">
+      <div class="option-left">
+        <span class="radio" id="bindCardRadio"></span>
+        <span class="option-label">绑卡</span>
+      </div>
+      <span class="chevron-gray">‹</span>
+    </div>
+  </div>
+
+</div>
+  <!-- 底部按钮 -->
+  <!-- 推荐培训卡气泡 + 底部按钮 -->
+  <div class="footer">
+    <div class="bubble" id="bubble">
+      <button class="bb-collapse" id="bbClose" aria-label="收起">收起 ⌄</button>
+      <div class="recommend-title">该项目推荐培训卡</div>
+
+      <div class="recommend-row">
+        <div class="recommend-name" data-name="2026年广东继教-5分" data-score="5" data-price="65.00"
+             data-desc="1.学习完成后可申请国家级项目5分（不含全员专项中项目），附送2026年选修课18学时（需学习完成后申请有效）。&#10;2.2026年国家级项目学习截止时间：2026年12月31日">
+          <span class="txt">广东广州继教-5分（赠18学时）</span>
+          <span class="chevron-blue">‹</span>
+        </div>
+        <span class="price num">65元</span>
+        <button class="buy-btn">购买</button>
+      </div>
+
+      <div class="recommend-row">
+        <div class="recommend-name" data-name="2026年广东继教-年度卡" data-score="不限" data-price="230.00"
+             data-desc="1.年度卡不限学分学时，有效期内可自由扣减使用。&#10;2.2026年国家级项目学习截止时间：2026年12月31日">
+          <span class="txt">广东广州继教-年度卡（不限学分学时）</span>
+          <span class="chevron-blue">‹</span>
+        </div>
+        <span class="price num">230元</span>
+        <button class="buy-btn">购买</button>
+      </div>
+
+      <div class="more-cards-tip"><span class="excl">‼️</span>点击查看更多学习卡</div>
+    </div>
+
+    <div class="footer-row">
+      <button class="bb-mini hidden" id="bbMini">✦ 优惠购卡 ⌃</button>
+      <button class="confirm-btn">确认解锁</button>
+    </div>
+  </div>
+
+
+<!-- 卡密绑定 子页面 -->
+<div class="subpage" id="codePage">
+  <div class="sp-wrap">
+    <div class="sp-head">
+      <button class="sp-back" id="codeBack">←</button>
+      <h2>绑定其他卡</h2>
+    </div>
+    <div class="form-wrap">
+      <div class="form-card">
+        <div class="form-row">
+          <span class="fl">卡号</span>
+          <input type="text" placeholder="请输入卡号">
+        </div>
+        <div class="form-row">
+          <span class="fl">密码</span>
+          <input type="text" placeholder="请输入密码">
+        </div>
+      </div>
+    </div>
+    <div class="form-foot">
+      <button id="codeOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 绑卡 子页面 -->
+<div class="subpage" id="bindPage">
+  <div class="sp-wrap">
+    <div class="sp-head">
+      <button class="sp-back" id="bindBack">←</button>
+      <h2>绑卡</h2>
+    </div>
+    <div class="sp-tabs">
+      <div class="sp-tab on" data-sp="wait">待绑定 (1)</div>
+      <div class="sp-tab" data-sp="done">已绑定 (0)</div>
+      <div class="sp-tab" data-sp="all">全部 (1)</div>
+    </div>
+    <div class="sp-body">
+      <div id="spWait">
+        <div class="grp-title">远程继教</div>
+        <div class="bc-card">
+          <div class="bc-head">
+            <h3>2026年广东继教-10分</h3>
+            <p>卡号：9111265507139</p>
+          </div>
+          <div class="bc-body">
+            <div class="bc-box">
+              <div><div class="k">剩余</div><div class="v num">10<span class="unit">学分</span></div></div>
+              <span class="tag">国家级</span>
+            </div>
+            <div class="bc-box">
+              <div><div class="k">剩余</div><div class="v num">18<span class="unit">学时</span></div></div>
+              <span class="tag">选修课</span>
+            </div>
+            <button class="bc-bind">绑定</button>
+            <div class="bc-note">
+              <span class="t">1.学习完成后可申请国家级项目10分（不含全员专项中项目），…</span>
+              <span class="ar">⌄</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="spDone" class="hidden">
+        <div class="sp-empty">暂无已绑定培训卡</div>
+      </div>
+      <div id="spAll" class="hidden">
+        <div class="grp-title">远程继教</div>
+        <div class="bc-card">
+          <div class="bc-head">
+            <h3>2026年广东继教-10分</h3>
+            <p>卡号：9111265507139</p>
+          </div>
+          <div class="bc-body">
+            <div class="bc-box">
+              <div><div class="k">剩余</div><div class="v num">10<span class="unit">学分</span></div></div>
+              <span class="tag">国家级</span>
+            </div>
+            <div class="bc-box">
+              <div><div class="k">剩余</div><div class="v num">18<span class="unit">学时</span></div></div>
+              <span class="tag">选修课</span>
+            </div>
+            <button class="bc-bind">绑定</button>
+            <div class="bc-note">
+              <span class="t">1.学习完成后可申请国家级项目10分（不含全员专项中项目），…</span>
+              <span class="ar">⌄</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sp-foot">
+      <button class="btn-ghost" id="bindOther">绑定其他卡</button>
+      <button class="btn-solid">购卡</button>
+    </div>
+  </div>
+</div>
+
+<!-- 培训卡详情 弹窗 -->
+<!-- 培训卡购买 子页面 -->
+<div class="subpage" id="buyPage">
+  <div class="sp-wrap">
+    <div class="sp-head">
+      <button class="sp-back" id="buyBack">←</button>
+      <h2>培训卡购买</h2>
+    </div>
+    <div class="sp-body">
+      <div class="grp-title">远程继教</div>
+      <div class="buy-card">
+        <div class="buy-row" data-name="2026年广东继教-年卡" data-price="230.00" data-score="不限"
+             data-desc="1.年度卡不限学分学时，有效期内可自由扣减使用。&#10;2.2026年国家级项目学习截止时间：2026年12月31日">
+          <div class="bn">2026年广东继教-年卡</div>
+          <div class="b2">
+            <div class="bd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>详情</div>
+            <div class="br">
+              <span class="bp">¥230.00</span>
+              <div class="stepper">
+                <button class="minus" disabled>−</button><span class="q">0</span><button class="plus">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="buy-row" data-name="2026年广东继教-10分" data-price="130.00" data-score="10"
+             data-desc="1.学习完成后可申请国家级项目10分（不含全员专项中项目）。&#10;2.2026年国家级项目学习截止时间：2026年12月31日">
+          <div class="bn">2026年广东继教-10分</div>
+          <div class="b2">
+            <div class="bd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>详情</div>
+            <div class="br">
+              <span class="bp">¥130.00</span>
+              <div class="stepper">
+                <button class="minus" disabled>−</button><span class="q">0</span><button class="plus">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="buy-row" data-name="2026年广东继教-5分" data-price="65.00" data-score="5"
+             data-desc="1.学习完成后可申请国家级项目5分（不含全员专项中项目），附送2026年选修课18学时。&#10;2.2026年国家级项目学习截止时间：2026年12月31日">
+          <div class="bn">2026年广东继教-5分（赠18学时）</div>
+          <div class="b2">
+            <div class="bd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>详情</div>
+            <div class="br">
+              <span class="bp">¥65.00</span>
+              <div class="stepper">
+                <button class="minus" disabled>−</button><span class="q">0</span><button class="plus">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="buy-row" data-name="2025年国家级项目学分卡" data-price="100.00" data-score="10"
+             data-desc="1.学习完成后可申请国家级项目10分。&#10;2.有效期以卡面公示为准，逾期未使用视为自动放弃。">
+          <div class="bn">2025年国家级项目学分卡</div>
+          <div class="b2">
+            <div class="bd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>详情</div>
+            <div class="br">
+              <span class="bp">¥100.00</span>
+              <div class="stepper">
+                <button class="minus" disabled>−</button><span class="q">0</span><button class="plus">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="buy-row" data-name="华医网通用学时卡" data-price="60.00" data-score="20"
+             data-desc="1.通用学时卡可用于选修课学时扣减。&#10;2.学时按实际学习时长累计，不可跨年度结转。">
+          <div class="bn">华医网通用学时卡</div>
+          <div class="b2">
+            <div class="bd"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>详情</div>
+            <div class="br">
+              <span class="bp">¥60.00</span>
+              <div class="stepper">
+                <button class="minus" disabled>−</button><span class="q">0</span><button class="plus">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sp-foot one">
+      <button class="buy-now" id="buyNow">立即购买</button>
+    </div>
+  </div>
+</div>
+
+<!-- 填写订单 子页面 -->
+<div class="subpage" id="orderPage">
+  <div class="sp-wrap">
+    <div class="sp-head">
+      <button class="sp-back" id="orderBack">←</button>
+      <h2>填写订单</h2>
+    </div>
+    <div class="sp-body">
+      <div class="order-card">
+        <div class="o-prod">
+          <div class="nm" id="ordName">2026年广东继教-10分</div>
+          <div class="rt"><span class="o-amt" id="ordAmt">¥130.00</span><span class="o-qty">×1</span></div>
+        </div>
+        <div class="o-row">
+          <span class="k">发票</span>
+          <div class="inv-opts">
+            <div class="inv-opt on" data-inv="no"><span class="dot"></span>不开发票</div>
+            <div class="inv-opt" data-inv="yes"><span class="dot"></span>开发票</div>
+          </div>
+        </div>
+        <div class="o-row">
+          <span class="k">发票抬头</span>
+          <span class="v">个人 <span class="ar">›</span></span>
+        </div>
+        <div class="o-row">
+          <span class="k">发票内容</span>
+          <span class="v">培训服务费 <span class="ar">›</span></span>
+        </div>
+      </div>
+
+      <div class="order-card">
+        <div class="o-row" style="border-top:none">
+          <span class="k">产品金额</span>
+          <span class="v money" id="ordProdAmt">¥130.00</span>
+        </div>
+        <div class="o-row">
+          <span class="k">优惠</span>
+          <span class="v money">-¥0.00</span>
+        </div>
+        <div class="o-row">
+          <span class="k">应付金额</span>
+          <span class="v money red" id="ordPayAmt">¥130.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pay-bar">
+      <div class="sum"><span class="lb">合计</span><span class="num" id="ordTotal">¥130.00</span></div>
+      <button class="submit" id="ordSubmit">提交订单</button>
+    </div>
+  </div>
+</div>
+
+<!-- 购买协议 弹窗 -->
+<div class="mask" id="agreeMask">
+  <div class="agree-dialog">
+    <h3>购买协议</h3>
+    <div class="agree-body">
+      <p>本协议的甲方指“北京华医网科技股份有限公司”，乙方指购买者。本协议系乙方通过甲方销售渠道购买培训项目、接受甲方网络培训服务时，与甲方达成的具有法律约束力的合同。乙方完成支付后，本协议即生效，双方均应严格遵守。</p>
+      <p>一、服务内容与购买方式</p>
+      <p>1.甲方依托网络平台，为乙方提供《国家职业资格目录》之外的继续教育网络培训服务（含继续医学教育培训等）。</p>
+      <p>2.乙方根据自身实际培训需求，核对项目信息后选购对应的培训项目，购买后即可进行项目学习。</p>
+      <p>3.培训卡自购买之日起生效，有效期以卡面及项目页公示为准，逾期未使用视为自动放弃。</p>
+      <p>二、费用与支付</p>
+      <p>1.乙方应按订单页面显示的金额支付费用，支持微信支付、支付宝支付及对公转账。</p>
+      <p>2.甲方在收到款项后为乙方开通对应培训权限，并依规开具发票。</p>
+      <p>三、其他</p>
+      <p>本协议未尽事宜，由双方另行协商解决；协商不成的，按甲方所在地法律法规处理。</p>
+    </div>
+    <div class="agree-chk" id="agreeChk"><span class="box"></span>我已认真阅读并同意以上条款</div>
+    <button class="agree-ok" id="agreeOk">确定</button>
+  </div>
+</div>
+
+<div class="mask" id="dlgCard">
+  <div class="card-dlg">
+    <h3>培训卡详情</h3>
+    <button class="close-x" id="cardDlgClose">✕</button>
+    <div class="cd-row">
+      <span class="lbl">卡名称</span>
+      <span class="val" id="cdName">2026年广东继教-5分</span>
+    </div>
+    <div class="cd-row">
+      <span class="lbl">分值</span>
+      <span class="val" id="cdScore">5</span>
+    </div>
+    <div class="cd-row">
+      <span class="lbl">单价</span>
+      <span class="val" id="cdPrice">65.00</span>
+    </div>
+    <div class="cd-row">
+      <span class="lbl">说明</span>
+      <span class="val gray" id="cdDesc"></span>
+    </div>
+  </div>
+</div>
+
+<!-- 查看定向课程 弹窗 -->
+<div class="mask" id="dlgMask">
+  <div class="dialog">
+    <h3>查看定向课程</h3>
+    <div class="course"><b>ANCA相关小血管炎的肾损伤及病例分析</b><span>国家I类(合作继教) 8.0学分</span></div>
+    <div class="course"><b>ANCA相关小血管炎的肾损伤及病例分析</b><span>国家I类(合作继教) 8.0学分</span></div>
+    <div class="course"><b>ANCA相关小血管炎的肾损伤及病例分析</b><span>国家I类(合作继教) 8.0学分</span></div>
+    <div class="course"><b>ANCA相关小血管炎的肾损伤及病例分析</b><span>国家I类(合作继教) 8.0学分</span></div>
+    <div class="course"><b>ANCA相关小血管炎的肾损伤及病例分析</b><span>国家I类(合作继教) 8.0学分</span></div>
+    <button class="ok-btn" id="dlgOk">我知道了</button>
+  </div>
+</div>
+
+      <div class="toast" id="toast"></div>
+      <div class="home-bar"></div>
+    </div><!-- /screen -->
+  </div><!-- /device -->
+  <div class="stage-cap"><b>选择解锁方式</b> · 高保真交互原型</div>
+</div><!-- /stage -->
+
+<script>
+var $ = function(s){return document.querySelector(s)};
+var $$ = function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+
+/* ===== 选项互斥 ===== */
+var ROWS = [['payRadio','payHead'],['cardRadio','cardHead'],['bindCardRadio','bindCardOpt']];
+function onlyRadio(id){
+  ROWS.forEach(function(r){
+    var rad = $('#'+r[0]), row = $('#'+r[1]);
+    var on = (r[0] === id);
+    if(rad) rad.classList.toggle('checked', on);
+    if(row) row.classList.toggle('active', on);
+  });
+}
+
+/* ===== Tabs ===== */
+$$('.tab2').forEach(function(el){
+  el.addEventListener('click',function(){
+    $$('.tab2').forEach(function(t){t.classList.remove('on')});
+    el.classList.add('on');
+    var usable = el.dataset.tab === 'usable';
+    $('#tabUsable').classList.toggle('hidden',!usable);
+    $('#tabUnusable').classList.toggle('hidden',usable);
+  });
+});
+
+/* ===== 额度单选 / 说明折叠 ===== */
+$$('.popt').forEach(function(el){
+  el.addEventListener('click',function(){
+    $$('.popt').forEach(function(o){o.classList.remove('sel')});
+    el.classList.add('sel');
+  });
+});
+$$('.pnote').forEach(function(el){
+  el.addEventListener('click',function(){el.classList.toggle('open')});
+});
+/* 吐司提示 */
+var toastTimer = null;
+function showToast(msg, ms){
+  var t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, ms || 10000);
+}
+/* 待绑定卡：每绑定一张，数量 -1，直至 0 移除该卡 */
+$('#pendingBind').addEventListener('click',function(e){
+  e.stopPropagation();
+  var badge = $('#pendingCount');
+  var n = parseInt(badge.textContent.replace(/\D/g,''),10) || 0;
+  n = n - 1;
+  if(n > 0){
+    badge.textContent = '数量：' + n;
+    showToast('绑定成功，还剩 ' + n + ' 张待绑定，可继续绑定或直接扣减', 10000);
+    return;
+  }
+  showToast('绑定成功，该培训卡已全部绑定，可直接用于解锁扣减', 10000);
+  /* 数量为 0：移除待绑定卡并同步 Tab 计数 */
+  var card = $('#pendingCard');
+  card.style.transition = 'opacity .26s ease, transform .26s ease';
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(-6px)';
+  setTimeout(function(){
+    card.classList.add('hidden');
+    var em = document.querySelector('.tab2[data-tab="usable"] em');
+    if(em){ em.textContent = Math.max(0, (parseInt(em.textContent,10) || 0) - 1); }
+  }, 260);
+});
+$$('.udesc').forEach(function(el){
+  el.addEventListener('click',function(){el.classList.toggle('open')});
+});
+
+/* ===== 定向课程弹窗 ===== */
+$$('.定向-btn').forEach(function(el){
+  el.addEventListener('click',function(){$('#dlgMask').classList.add('show')});
+});
+$('#dlgOk').addEventListener('click',function(){$('#dlgMask').classList.remove('show')});
+$('#dlgMask').addEventListener('click',function(e){
+  if(e.target === this) this.classList.remove('show');
+});
+
+/* ===== 培训卡详情弹窗 ===== */
+$$('.recommend-name').forEach(function(el){
+  el.addEventListener('click',function(){
+    $('#cdName').textContent = el.dataset.name;
+    $('#cdScore').textContent = el.dataset.score;
+    $('#cdPrice').textContent = el.dataset.price;
+    $('#cdDesc').innerHTML = el.dataset.desc.replace(/\n/g,'<br>');
+    $('#dlgCard').classList.add('show');
+  });
+});
+$('#cardDlgClose').addEventListener('click',function(){$('#dlgCard').classList.remove('show')});
+$('#dlgCard').addEventListener('click',function(e){
+  if(e.target === this) this.classList.remove('show');
+});
+
+/* ===== 支付39元 展开 ===== */
+var payWrap = $('#payWrap');
+var cardOpen = true;
+function setCardBody(open){
+  cardOpen = open;
+  $('#cardBody').classList.toggle('hidden',!open);
+  $('#cardArr').style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)';
+  $('#cardArea').classList.toggle('collapsed', !open);
+}
+function selectCard(){
+  onlyRadio('cardRadio');
+  payWrap.classList.remove('open');
+  setCardBody(true);
+}
+/* 支付39元解锁课程 → 跳转「填写订单」新页 */
+$('#payHead').addEventListener('click',function(){
+  onlyRadio('payRadio');
+  payWrap.classList.remove('open');
+  setCardBody(false);
+  setOrder('免疫球蛋白A（IgA）肾病规范化管理能力提升', 39);
+  $('#orderPage').classList.add('show');
+  $('#agreeMask').classList.add('show');
+});
+
+/* ===== 培训卡支付 折叠 ===== */
+$('#cardHead').addEventListener('click',function(){
+  if(!cardOpen) selectCard();
+  else setCardBody(false);
+});
+
+/* ===== 简单选项（绑卡） ===== */
+function pickSimple(id){
+  onlyRadio(id);
+  payWrap.classList.remove('open');
+  setCardBody(false);
+}
+$('#bindCardOpt').addEventListener('click',function(){
+  pickSimple('bindCardRadio');
+  $('#bindPage').classList.add('show');
+});
+
+/* ===== 绑卡子页面 ===== */
+$('#bindBack').addEventListener('click',function(){$('#bindPage').classList.remove('show')});
+$$('.sp-tab').forEach(function(el){
+  el.addEventListener('click',function(){
+    $$('.sp-tab').forEach(function(t){t.classList.remove('on')});
+    el.classList.add('on');
+    var k = el.dataset.sp;
+    $('#spWait').classList.toggle('hidden', k !== 'wait');
+    $('#spDone').classList.toggle('hidden', k !== 'done');
+    $('#spAll').classList.toggle('hidden', k !== 'all');
+  });
+});
+$$('.bc-note').forEach(function(el){
+  el.addEventListener('click',function(){el.classList.toggle('open')});
+});
+$$('.bc-bind').forEach(function(el){
+  el.addEventListener('click',function(){
+    el.textContent = '已绑定';
+    el.classList.add('done');
+    el.disabled = true;
+  });
+});
+
+/* ===== 卡密绑定子页面 ===== */
+$('#codeBack').addEventListener('click',function(){$('#codePage').classList.remove('show')});
+/* 绑卡页 → 绑定其他卡（卡号 + 密码） */
+$('#bindOther').addEventListener('click',function(){
+  $('#codePage').classList.add('show');
+});
+var codeInputs = $$('#codePage input');
+var codeOk = $('#codeOk');
+function syncOk(){
+  var ready = codeInputs[0].value.trim() && codeInputs[1].value.trim();
+  codeOk.classList.toggle('ready', !!ready);
+}
+codeInputs.forEach(function(i){ i.addEventListener('input', syncOk); });
+codeOk.addEventListener('click',function(){
+  if(!codeOk.classList.contains('ready')){
+    if(!codeInputs[0].value.trim()) codeInputs[0].focus();
+    else codeInputs[1].focus();
+    return;
+  }
+  alert('绑定成功：' + codeInputs[0].value);
+  codeInputs[0].value = ''; codeInputs[1].value = '';
+  syncOk();
+  $('#codePage').classList.remove('show');
+});
+/* ===== 填写订单 ===== */
+function money(n){ return '¥' + Number(n).toFixed(2); }
+function setOrder(name, price){
+  $('#ordName').textContent = name;
+  $('#ordAmt').textContent = money(price);
+  $('#ordProdAmt').textContent = money(price);
+  $('#ordPayAmt').textContent = money(price);
+  $('#ordTotal').textContent = money(price);
+}
+$$('.buy-btn').forEach(function(btn){
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    var row = btn.closest('.recommend-row');
+    var info = row ? row.querySelector('.recommend-name') : null;
+    if(info) setOrder(info.dataset.name, info.dataset.price);
+    $('#orderPage').classList.add('show');
+    $('#agreeMask').classList.add('show');
+  });
+});
+$('#orderBack').addEventListener('click',function(){$('#orderPage').classList.remove('show')});
+$$('.inv-opt').forEach(function(el){
+  el.addEventListener('click',function(){
+    $$('.inv-opt').forEach(function(o){o.classList.remove('on')});
+    el.classList.add('on');
+  });
+});
+$('#agreeChk').addEventListener('click',function(){
+  var on = this.classList.toggle('on');
+  $('#agreeOk').classList.toggle('ready', on);
+});
+$('#agreeOk').addEventListener('click',function(){
+  if(!this.classList.contains('ready')){
+    $('#agreeChk').animate ? $('#agreeChk').animate(
+      [{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],
+      {duration:240}
+    ) : null;
+    return;
+  }
+  $('#agreeMask').classList.remove('show');
+});
+$('#ordSubmit').addEventListener('click',function(){
+  alert('订单已提交，请完成支付');
+});
+/* ===== 推荐培训卡气泡 ===== */
+function openBuyPage(){
+  $('#buyPage').classList.add('show');
+  $('#agreeMask').classList.add('show');
+}
+$$('.more-cards-tip').forEach(function(el){
+  el.addEventListener('click',openBuyPage);
+});
+$('#bbClose').addEventListener('click',function(){
+  $('#bubble').classList.add('hidden');
+  $('#bbMini').classList.remove('hidden');
+});
+$('#bbMini').addEventListener('click',function(){
+  $('#bubble').classList.remove('hidden');
+  $('#bbMini').classList.add('hidden');
+});
+
+/* ===== 培训卡购买 页 ===== */
+$('#buyBack').addEventListener('click',function(){$('#buyPage').classList.remove('show')});
+
+function syncBuyNow(){
+  var total = 0;
+  $$('#buyPage .q').forEach(function(q){ total += parseInt(q.textContent,10) || 0; });
+  $('#buyNow').classList.toggle('ready', total > 0);
+  return total;
+}
+$$('.stepper').forEach(function(st){
+  var q = st.querySelector('.q');
+  var minus = st.querySelector('.minus');
+  var plus = st.querySelector('.plus');
+  function paint(){
+    var n = parseInt(q.textContent,10) || 0;
+    minus.disabled = n <= 0;
+    syncBuyNow();
+  }
+  minus.addEventListener('click',function(e){
+    e.stopPropagation();
+    var n = parseInt(q.textContent,10) || 0;
+    if(n > 0) q.textContent = n - 1;
+    paint();
+  });
+  plus.addEventListener('click',function(e){
+    e.stopPropagation();
+    var n = parseInt(q.textContent,10) || 0;
+    if(n < 99) q.textContent = n + 1;
+    paint();
+  });
+});
+/* 详情 → 培训卡详情弹窗 */
+$$('#buyPage .bd').forEach(function(d){
+  d.addEventListener('click',function(e){
+    e.stopPropagation();
+    var row = d.closest('.buy-row');
+    $('#cdName').textContent = row.dataset.name;
+    $('#cdScore').textContent = row.dataset.score;
+    $('#cdPrice').textContent = row.dataset.price;
+    $('#cdDesc').innerHTML = row.dataset.desc.replace(/\n/g,'<br>');
+    $('#dlgCard').classList.add('show');
+  });
+});
+/* 立即购买 → 填写订单 */
+$('#buyNow').addEventListener('click',function(){
+  if(!this.classList.contains('ready')){
+    $('#buyNow').animate(
+      [{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],
+      {duration:240}
+    );
+    return;
+  }
+  var total = 0, names = [], totalAmt = 0;
+  $$('#buyPage .buy-row').forEach(function(row){
+    var n = parseInt(row.querySelector('.q').textContent,10) || 0;
+    if(n > 0){
+      total += n; names.push(row.dataset.name + ' ×' + n);
+      totalAmt += n * Number(row.dataset.price);
+    }
+  });
+  setOrder(names.join('、'), totalAmt);
+  $('#orderPage').classList.add('show');
+});
+
+</script>
+</body>
+</html>
